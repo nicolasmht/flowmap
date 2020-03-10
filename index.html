@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body { margin: 0; }
+        
+        .canvas{
+            position: absolute;
+            display: block;
+            /* background-color: #000; */
+        }
+    </style>
+</head>
+<body>
+    <canvas class="canvas"></canvas>
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+
+        uniform sampler2D uMap;
+        varying vec2 vUv;
+
+        void main() {
+
+            vUv = uv;
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    </script>
+    <script id="fragmentShader" type="x-shader/x-fragment">
+
+        uniform sampler2D uMap;
+        varying vec2 vUv;
+
+        void main() {
+
+            vec4 texel = texture2D(uMap, vUv);
+
+            gl_FragColor = texel * 0.0;
+        }
+    </script>
+
+    <script id="vertexShaderPoints" type="x-shader/x-vertex">
+
+        uniform sampler2D uMap;
+        varying vec2 vUv;
+        varying vec3 vPosition;
+
+        float random (vec2 st) {
+            return fract(sin(dot(st.xy,
+                vec2(12.9898,78.233)))*
+                43758.5453123);
+        }
+
+        void main() {
+
+            vUv = uv;
+
+            vec4 texel = texture2D(uMap, vUv);
+
+            float positionX = (position.x + texel.r) * 1.0;
+            float positionY = (position.y + texel.g) * 0.1;
+            float positionZ = (position.z + texel.b) * 1.0;
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position.x, position.y, positionZ * 2.0, 1.0);
+            gl_PointSize = 1.0;
+
+            vPosition = vec3(position.x, position.y, positionZ * 10.0);
+        }
+    </script>
+    <script id="fragmentShaderPoints" type="x-shader/x-fragment">
+
+        uniform sampler2D uMap;
+        varying vec2 vUv;
+        varying vec3 vPosition;
+
+        void main() {
+
+            vec4 texel = texture2D(uMap, vUv);
+
+            gl_FragColor = vec4(1.0, 1.0 * vPosition.z, 1.0 * vPosition.z, 1.0);
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+    <script src="TouchTexture.js"></script>
+    <script src="flowmap.js"></script>
+</body>
+</html>
